@@ -1,6 +1,4 @@
-# SMTP 
+# Magento2 Mail - Mailgun Integration
 
  * Copyright © 2015 Martin Kramer. All rights reserved.
- * See LICENSE.txt for license details.
-
-TODO
+ * For commercial use: Get a license on www.shockwave-design.de
