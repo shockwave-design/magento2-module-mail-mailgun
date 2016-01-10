@@ -1,19 +1,20 @@
 {
-    "name": "shockwavedesign/magento2-module-mail-mailgun",
-    "description": "Extend shockwave mail",
-    "require": {
-    },
-    "type": "magento2-module",
-    "license": [
-        "UNLICENSED",
-        "Copyright 2016 Shockwave-Design - J. & M. Kramer, all rights reserved."
+  "name": "shockwavedesign/magento2-module-mail-mailgun",
+  "description": "Extend shockwave mail",
+  "require": {
+    "mailgun/mailgun-php": "v1.8"
+  },
+  "type": "magento2-module",
+  "license": [
+      "UNLICENSED",
+      "Copyright 2016 Shockwave-Design - J. & M. Kramer, all rights reserved."
+  ],
+  "autoload": {
+    "files": [
+        "registration.php"
     ],
-    "autoload": {
-        "files": [
-            "registration.php"
-        ],
-        "psr-4": {
-            "Shockwavedesign\\Mail\\Mailgun\\": ""
-        }
+    "psr-4": {
+        "Shockwavedesign\\Mail\\Mailgun\\": ""
     }
+  }
 }

@@ -25,7 +25,7 @@ class MailgunTransport implements \Magento\Framework\Mail\TransportInterface
      * @throws \InvalidArgumentException
      */
     public function __construct(
-        \Shockwavemk\Smtp\Model\Config $config,
+        \Shockwavemk\Mail\Mailgun\Model\Config $config,
         \Magento\Framework\Mail\MessageInterface $message,
         $parameters = null)
     {
