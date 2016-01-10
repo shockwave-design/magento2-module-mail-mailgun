@@ -2,6 +2,7 @@
   "name": "shockwavedesign/magento2-module-mail-mailgun",
   "description": "Extend shockwave mail",
   "require": {
+    "shockwavemk/magento2-module-mail": "dev-master",
     "mailgun/mailgun-php": "v1.8"
   },
   "type": "magento2-module",
