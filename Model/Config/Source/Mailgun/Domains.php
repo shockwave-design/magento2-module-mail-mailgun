@@ -1,9 +1,9 @@
 <?php
 /**
- * Copyright © 2015 Martin Kramer. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright 2016 Shockwave-Design - J. & M. Kramer, all rights reserved.
+ * See LICENSE.txt for license details.
  */
-namespace Shockwavemk\Smtp\Model\Config\Source\Mailgun;
+namespace Shockwavedesign\Mail\Mailgun\Model\Config\Source\Mailgun;
 
 use Magento\Framework\Webapi\Exception;
 use Shockwavemk\Smtp\Model\Config;
