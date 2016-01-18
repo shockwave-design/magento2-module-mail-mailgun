@@ -15,7 +15,7 @@
                     <depends>
                         <field id="type">mailgun</field>
                     </depends>
-                    <source_model>Shockwavemk\Mail\Mailgun\Model\Config\Source\Mailgun\Domains</source_model>
+                    <source_model>Shockwavedesign\Mail\Mailgun\Model\Config\Source\Mailgun\Domains</source_model>
                 </field>
 
                 <field id="mailgun_key" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">

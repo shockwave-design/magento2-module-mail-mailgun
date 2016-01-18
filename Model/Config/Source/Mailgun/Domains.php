@@ -5,8 +5,6 @@
  */
 namespace Shockwavedesign\Mail\Mailgun\Model\Config\Source\Mailgun;
 
-use Magento\Framework\Webapi\Exception;
-use Shockwavemk\Smtp\Model\Config;
 use \Mailgun\Mailgun;
 
 class Domains implements \Magento\Framework\Option\ArrayInterface
@@ -15,7 +13,7 @@ class Domains implements \Magento\Framework\Option\ArrayInterface
     protected $messageManager;
 
     public function __construct(
-        \Shockwavemk\Smtp\Model\Config $scopeConfig,
+        \Shockwavedesign\Mail\Mailgun\Model\Config $scopeConfig,
         \Magento\Framework\Message\ManagerInterface $messageManager
     )
     {
