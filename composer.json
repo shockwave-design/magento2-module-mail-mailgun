@@ -3,7 +3,7 @@
   "description": "Extend shockwave mail",
   "require": {
     "shockwavemk/magento2-module-mail": "dev-master",
-    "mailgun/mailgun-php": "v1.8"
+    "mailgun/mailgun-php": "*"
   },
   "type": "magento2-module",
   "license": [
