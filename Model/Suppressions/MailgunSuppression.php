@@ -8,7 +8,7 @@ namespace Shockwavedesign\Mail\Mailgun\Model\Transports;
 use DateTime;
 use Mailgun\Mailgun;
 
-class MailgunTag
+class MailgunSuppression
 {
     /**
      * @param \Magento\Framework\Mail\MessageInterface $message
@@ -25,11 +25,11 @@ class MailgunTag
         $this->_parameters = $parameters;
     }
 
-    public function getTags()
+    public function getComplaints()
     {
-        # Issue the call to the client.
-        $result = $mgClient->get("$domain/tags", array(
-            'limit' => 10
+        $result = $mgClient->get("$domain/complaints", array(
+            'limit' => 10,
+            'skip'  => 5
         ));
     }
 }
