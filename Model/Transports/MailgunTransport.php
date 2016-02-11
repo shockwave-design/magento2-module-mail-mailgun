@@ -8,12 +8,14 @@ namespace Shockwavedesign\Mail\Mailgun\Model\Transports;
 use DateTime;
 use Mailgun\Mailgun;
 
-class MailgunTransport implements \Magento\Framework\Mail\TransportInterface
+class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
 {
     /**
      * @var \Zend_Mail $_message
      */
     protected $_message;
+
+    protected $_mail;
 
     protected $_config;
 
@@ -36,6 +38,40 @@ class MailgunTransport implements \Magento\Framework\Mail\TransportInterface
     protected $_trackingOpensEnabled;
 
     protected $_trackingClicksEnabled;
+
+    protected $_sent;
+
+    /**
+     * @return \Zend_Mail
+     */
+    public function getMessage()
+    {
+        return $this->_message;
+    }
+
+    /**
+     * @param \Zend_Mail $message
+     */
+    public function setMessage($message)
+    {
+        $this->_message = $message;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMail()
+    {
+        return $this->_mail;
+    }
+
+    /**
+     * @param mixed $mail
+     */
+    public function setMail($mail)
+    {
+        $this->_mail = $mail;
+    }
 
     /**
      * @return mixed
@@ -152,6 +188,22 @@ class MailgunTransport implements \Magento\Framework\Mail\TransportInterface
     /**
      * @return mixed
      */
+    public function getSent()
+    {
+        return $this->_sent;
+    }
+
+    /**
+     * @param $sent
+     */
+    public function setSent($sent)
+    {
+        $this->_sent = $sent;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getTestMode()
     {
         return $this->_testMode;
@@ -166,7 +218,7 @@ class MailgunTransport implements \Magento\Framework\Mail\TransportInterface
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getRecipientVariables()
     {

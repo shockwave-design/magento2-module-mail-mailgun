@@ -15,7 +15,7 @@
         <transport>
             <types>
                 <mailgun>
-                    <lable>Mailgun</lable>
+                    <label>Mailgun</label>
                     <value>mailgun</value>
                     <class>Shockwavedesign\Mail\Mailgun\Model\Transports\MailgunTransport</class>
                 </mailgun>
