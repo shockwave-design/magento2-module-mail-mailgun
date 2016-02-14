@@ -41,6 +41,10 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     protected $_sent;
 
+    protected $_messages;
+
+    protected $_inlines;
+
     /**
      * @return \Zend_Mail
      */
@@ -140,6 +144,38 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     /**
      * @return mixed
      */
+    public function getMessages()
+    {
+        return $this->_messages;
+    }
+
+    /**
+     * @param array $messages
+     */
+    public function setMessages($messages)
+    {
+        $this->_messages = $messages;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInlines()
+    {
+        return $this->_inlines;
+    }
+
+    /**
+     * @param array $inlines
+     */
+    public function setInlines($inlines)
+    {
+        $this->_inlines = $inlines;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getDeliveryTime()
     {
         return $this->_deliveryTime;
@@ -217,6 +253,11 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
         $this->_testMode = $testMode;
     }
 
+    public function getTransportId()
+    {
+        return 0; // TODO
+    }
+
     /**
      * @return string
      */
@@ -231,6 +272,15 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     public function setRecipientVariables($recipientVariables)
     {
         $this->_recipientVariables = $recipientVariables;
+    }
+
+    protected function getPostFiles()
+    {
+        return array(
+            'attachment' => $this->getAttachments(),
+            'inline' => $this->getInlines(),
+            'message' => $this->getMessages()
+        );
     }
 
     /**
@@ -251,18 +301,10 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
             array('Magento')
         );
 
+
         $this->setRecipientVariables(
             '{"bob@example.com": {"first":"Bob", "id":1},
               "alice@example.com": {"first":"Alice", "id": 2}}'
-        );
-
-        $this->setAttachments(
-            array(
-                'attachment' => array(
-                    '/path/to/file.txt',
-                    '/path/to/file.txt'
-                )
-            )
         );
 
         $this->setTrackingEnabled(true);
@@ -291,21 +333,19 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
                 'to'      => $recipients,
                 'subject' => quoted_printable_decode($this->_message->getSubject()),
                 'text'    => quoted_printable_decode($this->_message->getBodyText(true)),
-                'html'    => quoted_printable_decode($this->_message->getBodyHtml(true)),
-                'recipient-variables' => $this->getRecipientVariables(),
-                'o:tag'   => $this->getTags(),
-                'o:deliverytime' => $this->getDeliveryTime(),
-                'o:tracking' => $this->getTrackingEnabled(),
-                'o:tracking-clicks' => $this->getTrackingClicksEnabled(),
-                'o:tracking-opens' => $this->getTrackingOpensEnabled()
+                'html'    => quoted_printable_decode($this->_message->getBodyHtml(true))
+
             );
 
             $this->setResult(
+                /*
                 $mailgunClient->sendMessage(
                     $this->_config->getMailgunDomain(),
                     $parameters,
-                    $this->getAttachments()
+                    $this->getPostFiles()
                 )
+                */
+                new \stdClass()
             );
         }
         catch (\Exception $e)
