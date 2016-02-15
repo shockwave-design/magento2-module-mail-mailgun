@@ -39,8 +39,6 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     protected $_trackingClicksEnabled;
 
-    protected $_sent;
-
     protected $_messages;
 
     protected $_inlines;
@@ -55,10 +53,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param \Zend_Mail $message
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setMessage($message)
     {
         $this->_message = $message;
+        return $this;
     }
 
     /**
@@ -71,10 +71,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param mixed $mail
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setMail($mail)
     {
         $this->_mail = $mail;
+        return $this;
     }
 
     /**
@@ -87,10 +89,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param boolean $trackingClicksEnabled
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setTrackingClicksEnabled($trackingClicksEnabled)
     {
         $this->_trackingClicksEnabled = $trackingClicksEnabled;
+        return $this;
     }
 
     /**
@@ -103,10 +107,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param boolean $trackingOpensEnabled
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setTrackingOpensEnabled($trackingOpensEnabled)
     {
         $this->_trackingOpensEnabled = $trackingOpensEnabled;
+        return $this;
     }
 
     /**
@@ -119,10 +125,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param boolean $trackingEnabled
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setTrackingEnabled($trackingEnabled)
     {
         $this->_trackingEnabled = $trackingEnabled;
+        return $this;
     }
 
     /**
@@ -135,10 +143,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param array $attachments
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setAttachments($attachments)
     {
         $this->_attachments = $attachments;
+        return $this;
     }
 
     /**
@@ -167,10 +177,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param array $inlines
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setInlines($inlines)
     {
         $this->_inlines = $inlines;
+        return $this;
     }
 
     /**
@@ -183,10 +195,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param DateTime $deliveryTime
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setDeliveryTime($deliveryTime)
     {
         $this->_deliveryTime = $deliveryTime;
+        return $this;
     }
 
     /**
@@ -199,10 +213,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param $tags
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setTags($tags)
     {
         $this->_tags = $tags;
+        return $this;
     }
 
     /**
@@ -215,10 +231,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param $result
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setResult($result)
     {
         $this->_result = $result;
+        return $this;
     }
 
     /**
@@ -226,15 +244,24 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
      */
     public function getSent()
     {
-        return $this->_sent;
+        $result = $this->getResult();
+
+        if(empty($result))
+        {
+            return null;
+        }
+
+
     }
 
     /**
      * @param $sent
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setSent($sent)
     {
         $this->_sent = $sent;
+        return $this;
     }
 
     /**
@@ -247,10 +274,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param $testMode
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setTestMode($testMode)
     {
         $this->_testMode = $testMode;
+        return $this;
     }
 
     public function getTransportId()
@@ -268,13 +297,15 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /**
      * @param mixed $recipientVariables
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
      */
     public function setRecipientVariables($recipientVariables)
     {
         $this->_recipientVariables = $recipientVariables;
+        return $this;
     }
 
-    protected function getPostFiles()
+    public function getPostFiles()
     {
         return array(
             'attachment' => $this->getAttachments(),
@@ -338,14 +369,11 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
             );
 
             $this->setResult(
-                /*
                 $mailgunClient->sendMessage(
                     $this->_config->getMailgunDomain(),
                     $parameters,
                     $this->getPostFiles()
                 )
-                */
-                new \stdClass()
             );
         }
         catch (\Exception $e)
