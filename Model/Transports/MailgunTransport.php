@@ -10,11 +10,13 @@ use stdClass;
 
 class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
 {
+    const ATTACHMENT_FOLDER = 'attachments';
     /**
      * @var \Zend_Mail $_message
      */
     protected $_message;
 
+    /** @var  \Shockwavemk\Mail\Base\Model\Mail */
     protected $_mail;
 
     protected $_config;
@@ -22,6 +24,9 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     protected $_parameters;
 
     protected $_result;
+
+    /** @var \Shockwavemk\Mail\Base\Model\Config */
+    protected $_baseConfig;
 
 
     /**
@@ -74,8 +79,24 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     public function getPostFiles()
     {
+        $attachmentPathes = [];
+
+        if(empty($mailId = $this->getMail()->getId())) {
+            $mailId = $this->getMail()->getParentId();
+        }
+
+        foreach($this->getMail()->getAttachments() as $attachment) {
+            $attachmentPathes[] =  $this
+                    ->getMail()
+                    ->getStoreage()
+                    ->getTempFilePath() .
+                $mailId . DIRECTORY_SEPARATOR .
+                self::ATTACHMENT_FOLDER .
+                $attachment->getFilePath();
+        }
+
         return array(
-            'attachment' => $this->getMail()->getAttachments(),
+            'attachment' => $attachmentPathes,
             'inline' => $this->getMail()->getAdditionalInlines(),
             'message' => $this->getMail()->getAdditionalMessages()
         );
@@ -88,11 +109,13 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
      */
     public function __construct(
         \Shockwavedesign\Mail\Mailgun\Model\Config $config,
+        \Shockwavemk\Mail\Base\Model\Config $baseConfig,
         \Magento\Framework\Mail\MessageInterface $message,
         \Magento\Framework\Stdlib\DateTime $dateTime,
         $parameters = null)
     {
         $this->_config = $config;
+        $this->_baseConfig = $baseConfig;
         $this->_message = $message;
         $this->_parameters = $parameters;
         $this->_dateTime = $dateTime;
@@ -124,17 +147,19 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
                 'html'    => quoted_printable_decode($this->_message->getBodyHtml(true))
             );
 
+            $postFiles = $this->getPostFiles();
+
             $test = $this->createTestResult();
 
             $this->getMail()->setResult(
-                /*
+
                 $mailgunClient->sendMessage(
                     $this->_config->getMailgunDomain(),
                     $parameters,
-                    $this->getPostFiles()
+                    $postFiles
                 )
-                */
-                $test
+
+                //$test
             );
 
             $this->getMail()
