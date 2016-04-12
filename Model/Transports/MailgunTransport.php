@@ -66,6 +66,8 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     }
 
     /**
+     * Returns result object created by mailgun service
+     *
      * @return mixed
      */
     public function getResult()
@@ -73,10 +75,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
         return $this->_result;
     }
 
-
-
-
-
+    /**
+     * Returns all attachments
+     *
+     * @return array
+     * @throws \Magento\Framework\Exception\MailException
+     */
     public function getPostFiles()
     {
         $attachmentPathes = [];
@@ -131,25 +135,128 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     {
         try
         {
-
-
             /** @var $mailgunClient Mailgun */
             $mailgunClient = new Mailgun(
                 $this->_config->getMailgunKey()
             );
 
             $recipients = implode(',', $this->_message->getRecipients());
+
             $parameters = array(
-                'from'    => $this->_message->getFrom(),
-                'to'      => $recipients,
+                'from' => $this->_message->getFrom(),
+                // Email address for From header
+                'to' => $recipients,
+                // to email address of the recipient(s).
+                // Example: "Bob <bob@host.com>". You can use commas to separate multiple recipients.
                 'subject' => quoted_printable_decode($this->_message->getSubject()),
-                'text'    => quoted_printable_decode($this->_message->getBodyText(true)),
-                'html'    => quoted_printable_decode($this->_message->getBodyHtml(true))
+                // Message subject
+                'text' => quoted_printable_decode($this->_message->getBodyText(true)),
+                // Body of the message. (text version)
+                'html' => quoted_printable_decode($this->_message->getBodyHtml(true)),
+                // Body of the message. (HTML version)
             );
 
-            $postFiles = $this->getPostFiles();
+            // Same as To but for Cc
+            if(!empty($this->getMail()->getCc())) {
+                $parameters['cc'] = $this->getMail()->getCc();
+            }
 
-            $test = $this->createTestResult();
+            //	Same as To but for Bcc
+            if(!empty($this->getMail()->getBcc())) {
+                $parameters['bcc'] = $this->getMail()->getBcc();
+            }
+
+            // File attachment. You can post multiple attachment values.
+            // Important: You must use multipart/form-data encoding when sending attachments.
+            if(!empty($this->getMail()->getMultipartAttachment())) {
+                $parameters['attachment'] = '';
+            }
+
+            // Attachment with inline disposition. Can be used to send inline images (see example).
+            // You can post multiple inline values.
+            if(!empty($this->getMail()->getMultipartInline())) {
+                $parameters['inline'] = '';
+            }
+
+            // Tag string. See Tagging for more information.
+            if(!empty($this->getMail()->getTags())) {
+                $parameters['o:tag'] = $this->getMail()->getTags();
+            }
+
+            // Id of the campaign the message belongs to. See um-campaign-analytics for details.
+            if(!empty($this->getMail()->getCampaign())) {
+                $parameters['o:campaign'] = $this->getMail()->getCampaign();
+            }
+
+            // 	Enables/disables DKIM signatures on per-message basis. Pass yes or no
+            if(!empty($this->getMail()->getDkimEnabled())) {
+                $parameters['o:dkim'] = $this->getMail()->getDkimEnabled();
+            }
+
+            // Desired time of delivery. See Date Format.
+            // Note: Messages can be scheduled for a maximum of 3 days in the future.
+            if(!empty($this->getMail()->getDeliveryTime())) {
+                $parameters['o:deliverytime'] = $this->getMail()->getDeliveryTime();
+            }
+
+            // 	Enables sending in test mode. Pass yes if needed. See Sending in Test Mode
+            if(!empty($this->getMail()->getTestMode())) {
+                $parameters['o:testmode'] = $this->getMail()->getTestMode();
+            }
+
+            // 	Toggles tracking on a per-message basis, see Tracking Messages for details.
+            // Pass yes or no.
+            if(!empty($this->getMail()->getTrackingEnabled())) {
+                $parameters['o:tracking'] = $this->getMail()->getTrackingEnabled();
+            }
+
+            // 	Toggles clicks tracking on a per-message basis.
+            // Has higher priority than domain-level setting. Pass yes, no or htmlonly.
+            if(!empty($this->getMail()->getTrackingClicksEnabled())) {
+                $parameters['o:tracking-clicks'] = $this->getMail()->getTrackingClicksEnabled();
+            }
+
+            // Toggles opens tracking on a per-message basis.
+            // Has higher priority than domain-level setting. Pass yes or no.
+            if(!empty($this->getMail()->getTrackingOpensEnabled())) {
+                $parameters['o:tracking-opens'] = $this->getMail()->getTrackingOpensEnabled();
+            }
+
+            // If set to True this requires the message only be sent over a TLS connection.
+            // If a TLS connection can not be established, Mailgun will not deliver the message.
+            // If set to False, Mailgun will still try and upgrade the connection,
+            // but if Mailgun can not, the message will be delivered over a plaintext SMTP connection.
+            // The default is False.
+            if(!empty($this->getMail()->getRequireTlsEnabled())) {
+                $parameters['o:require-tls'] = $this->getMail()->getRequireTlsEnabled();
+            }
+
+            // If set to True, the certificate and hostname will not be verified when trying
+            // to establish a TLS connection and Mailgun will accept any certificate during delivery.
+            // If set to False, Mailgun will verify the certificate and hostname.
+            // If either one can not be verified, a TLS connection will not be established.
+            // The default is False.
+            if(!empty($this->getMail()->getSkipVerificationEnabled())) {
+                $parameters['o:skip-verification'] = $this->getMail()->getSkipVerificationEnabled();
+            }
+
+            if(!empty($this->getMail()->getCc()) {
+                $parameters['cc'] = '';
+            }
+                'h:X-My-Header' => '',
+                // h: prefix followed by an arbitrary value allows to append a custom
+                // MIME header to the message (X-My-Header in this case).
+                // For example, h:Reply-To to specify Reply-To address.
+            if(!empty($this->getMail()->getCc()) {
+                $parameters['cc'] = '';
+            }
+                'v:my-var' => '',
+                // v: prefix followed by an arbitrary name allows to attach a custom JSON data to the message.
+                // See Attaching Data to Messages for more information.
+            );
+
+            /** @var array $postFiles */
+            $postFiles = $this->getPostFiles();
 
             $this->getMail()->setResult(
 
@@ -159,7 +266,6 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
                     $postFiles
                 )
 
-                //$test
             );
 
             $this->getMail()
@@ -189,6 +295,9 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
         );
     }
 
+    /**
+     * @return null|string
+     */
     public function createTransportId()
     {
         /** @var stdClass $result */
@@ -200,7 +309,8 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
         }
 
         $responseBody = $result->http_response_body;
-        if(!empty($responseBody) && !empty($responseBody->id))
+        if(!empty($responseBody)
+            && !empty($responseBody->id))
         {
             return $responseBody->id;
         }
@@ -221,7 +331,8 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
             return null;
         }
 
-        if(!empty($result->http_response_code) && $result->http_response_code == 200)
+        if(!empty($result->http_response_code)
+            && $result->http_response_code == 200)
         {
             return true;
         }
