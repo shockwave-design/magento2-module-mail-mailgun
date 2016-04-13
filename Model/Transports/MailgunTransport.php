@@ -19,17 +19,42 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     /** @var  \Shockwavemk\Mail\Base\Model\Mail */
     protected $_mail;
 
+    /** @var \Shockwavedesign\Mail\Mailgun\Model\Config */
     protected $_config;
 
+    /** @var null|array */
     protected $_parameters;
 
+    /** @var stdClass */
     protected $_result;
 
     /** @var \Shockwavemk\Mail\Base\Model\Config */
     protected $_baseConfig;
 
+    /**
+     * @param \Shockwavedesign\Mail\Mailgun\Model\Config $config
+     * @param \Shockwavemk\Mail\Base\Model\Config $baseConfig
+     * @param \Magento\Framework\Mail\MessageInterface $message
+     * @param \Magento\Framework\Stdlib\DateTime $dateTime
+     * @param null $parameters
+     */
+    public function __construct(
+        \Shockwavedesign\Mail\Mailgun\Model\Config $config,
+        \Shockwavemk\Mail\Base\Model\Config $baseConfig,
+        \Magento\Framework\Mail\MessageInterface $message,
+        \Magento\Framework\Stdlib\DateTime $dateTime,
+        $parameters = null)
+    {
+        $this->_config = $config;
+        $this->_baseConfig = $baseConfig;
+        $this->_message = $message;
+        $this->_parameters = $parameters;
+        $this->_dateTime = $dateTime;
+    }
 
     /**
+     * Returns wrapped message
+     *
      * @return \Zend_Mail
      */
     public function getMessage()
@@ -50,26 +75,6 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     }
 
     /**
-     * Returns wrapped mail object
-     *
-     * @return \Shockwavemk\Mail\Base\Model\Mail
-     */
-    public function getMail()
-    {
-        return $this->_mail;
-    }
-
-    /**
-     * @param mixed $mail
-     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
-     */
-    public function setMail($mail)
-    {
-        $this->_mail = $mail;
-        return $this;
-    }
-
-    /**
      * Returns result object created by mailgun service
      *
      * @return mixed
@@ -80,56 +85,6 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     }
 
     /**
-     * Returns all attachments
-     *
-     * @return array
-     * @throws \Magento\Framework\Exception\MailException
-     */
-    public function getPostFiles()
-    {
-        $attachmentPathes = [];
-
-        if(empty($mailId = $this->getMail()->getId())) {
-            $mailId = $this->getMail()->getParentId();
-        }
-
-        foreach($this->getMail()->getAttachments() as $attachment) {
-            $attachmentPathes[] =  $this
-                    ->getMail()
-                    ->getStoreage()
-                    ->getTempFilePath() .
-                $mailId . DIRECTORY_SEPARATOR .
-                self::ATTACHMENT_FOLDER .
-                $attachment->getFilePath();
-        }
-
-        return array(
-            'attachment' => $attachmentPathes,
-            'inline' => $this->getMail()->getAdditionalInlines(),
-            'message' => $this->getMail()->getAdditionalMessages()
-        );
-    }
-
-    /**
-     * @param \Magento\Framework\Mail\MessageInterface $message
-     * @param null $parameters
-     * @throws \InvalidArgumentException
-     */
-    public function __construct(
-        \Shockwavedesign\Mail\Mailgun\Model\Config $config,
-        \Shockwavemk\Mail\Base\Model\Config $baseConfig,
-        \Magento\Framework\Mail\MessageInterface $message,
-        \Magento\Framework\Stdlib\DateTime $dateTime,
-        $parameters = null)
-    {
-        $this->_config = $config;
-        $this->_baseConfig = $baseConfig;
-        $this->_message = $message;
-        $this->_parameters = $parameters;
-        $this->_dateTime = $dateTime;
-    }
-
-    /**
      * Send a mail using this transport
      *
      * @return void
@@ -137,14 +92,13 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
      */
     public function sendMessage()
     {
-        try
-        {
+        try {
             /** @var $mailgunClient Mailgun */
             $mailgunClient = new Mailgun(
                 $this->_config->getMailgunKey()
             );
 
-            /** @var string $recipients comma separated*/
+            /** @var string $recipients comma separated */
             $recipients = implode(',', $this->_message->getRecipients());
 
             // Assign default parameters
@@ -181,11 +135,8 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
             $this->getMail()
                 ->setSent($this->createSent())
                 ->setSentAt($this->createSentAt())
-                ->setTransportId($this->createTransportId())
-            ;
-        }
-        catch (\Exception $e)
-        {
+                ->setTransportId($this->createTransportId());
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\MailException(
                 new \Magento\Framework\Phrase(
                     $e->getMessage()
@@ -193,78 +144,6 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
                 $e
             );
         }
-    }
-
-    /**
-     * @return null|string
-     */
-    public function createSentAt()
-    {
-        return $this->_dateTime->formatDate(
-            new \DateTime()
-        );
-    }
-
-    /**
-     * @return null|string
-     */
-    public function createTransportId()
-    {
-        /** @var stdClass $result */
-        $result = $this->getMail()->getResult();
-
-        if(empty($result))
-        {
-            return null;
-        }
-
-        $responseBody = $result->http_response_body;
-        if(!empty($responseBody)
-            && !empty($responseBody->id))
-        {
-            return $responseBody->id;
-        }
-
-        return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function createSent()
-    {
-        /** @var stdClass $result */
-        $result = $this->getMail()->getResult();
-
-        if(empty($result))
-        {
-            return null;
-        }
-
-        if(!empty($result->http_response_code)
-            && $result->http_response_code == 200)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-
-
-    /**
-     * @return \stdClass
-     */
-    public function createTestResult()
-    {
-        $test = new \stdClass();
-        $test->http_response_code = 200;
-
-        $testBody = new \stdClass();
-        $testBody->id = '<xyz>';
-
-        $test->http_response_body = $testBody;
-        return $test;
     }
 
     /**
@@ -375,5 +254,124 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
             return $parameters;
         }
         return $parameters;
+    }
+
+    /**
+     * Returns wrapped mail object
+     *
+     * @return \Shockwavemk\Mail\Base\Model\Mail
+     */
+    public function getMail()
+    {
+        return $this->_mail;
+    }
+
+    /**
+     * @param mixed $mail
+     * @return \Shockwavemk\Mail\Base\Model\Transports\TransportInterface
+     */
+    public function setMail($mail)
+    {
+        $this->_mail = $mail;
+        return $this;
+    }
+
+    /**
+     * Returns all attachments
+     *
+     * @return array
+     * @throws \Magento\Framework\Exception\MailException
+     */
+    public function getPostFiles()
+    {
+        $attachmentPathes = [];
+
+        if (empty($mailId = $this->getMail()->getId())) {
+            $mailId = $this->getMail()->getParentId();
+        }
+
+        foreach ($this->getMail()->getAttachments() as $attachment) {
+            $attachmentPathes[] = $this
+                    ->getMail()
+                    ->getStoreage()
+                    ->getTempFilePath() .
+                $mailId . DIRECTORY_SEPARATOR .
+                self::ATTACHMENT_FOLDER .
+                $attachment->getFilePath();
+        }
+
+        return array(
+            'attachment' => $attachmentPathes,
+            'inline' => $this->getMail()->getAdditionalInlines(),
+            'message' => $this->getMail()->getAdditionalMessages()
+        );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function createSent()
+    {
+        /** @var stdClass $result */
+        $result = $this->getMail()->getResult();
+
+        if (empty($result)) {
+            return null;
+        }
+
+        if (!empty($result->http_response_code)
+            && $result->http_response_code == 200
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function createSentAt()
+    {
+        return $this->_dateTime->formatDate(
+            new \DateTime()
+        );
+    }
+
+    /**
+     * @return null|string
+     */
+    public function createTransportId()
+    {
+        /** @var stdClass $result */
+        $result = $this->getMail()->getResult();
+
+        if (empty($result)) {
+            return null;
+        }
+
+        $responseBody = $result->http_response_body;
+        if (!empty($responseBody)
+            && !empty($responseBody->id)
+        ) {
+            return $responseBody->id;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return \stdClass
+     */
+    public function createTestResult()
+    {
+        $test = new \stdClass();
+        $test->http_response_code = 200;
+
+        $testBody = new \stdClass();
+        $testBody->id = '<xyz>';
+
+        $test->http_response_body = $testBody;
+        return $test;
     }
 }
