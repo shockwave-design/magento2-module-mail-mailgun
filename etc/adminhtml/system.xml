@@ -9,21 +9,21 @@
     <system>
         <section id="system">
             <group id="smtp">
-                <field id="mailgun_domain" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Mailgun domain</label>
-                    <comment><![CDATA[example.com]]></comment>
-                    <depends>
-                        <field id="type">mailgun</field>
-                    </depends>
-                    <source_model>Shockwavedesign\Mail\Mailgun\Model\Config\Source\Mailgun\Domains</source_model>
-                </field>
-
                 <field id="mailgun_key" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mailgun key</label>
                     <comment><![CDATA[key-...]]></comment>
                     <depends>
                         <field id="type">mailgun</field>
                     </depends>
+                </field>
+
+                <field id="mailgun_domain" translate="label" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mailgun domain</label>
+                    <comment><![CDATA[example.com]]></comment>
+                    <depends>
+                        <field id="type">mailgun</field>
+                    </depends>
+                    <source_model>Shockwavedesign\Mail\Mailgun\Model\Config\Source\Mailgun\Domains</source_model>
                 </field>
             </group>
         </section>
