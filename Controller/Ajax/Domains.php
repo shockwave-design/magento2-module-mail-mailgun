@@ -3,11 +3,12 @@
  * Copyright 2016 Shockwave-Design - J. & M. Kramer, all rights reserved.
  * See LICENSE.txt for license details.
  */
-namespace Shockwavedesign\Mail\Mailgun\Controller\Adminhtml\Ajax;
+namespace Shockwavedesign\Mail\Mailgun\Controller\Ajax;
 
 use Magento\Customer\Model\Customer;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Area;
+use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
@@ -19,13 +20,18 @@ use Shockwavedesign\Mail\Dropbox\Model\Config as DropboxConfig;
 
 class Domains extends \Magento\Framework\App\Action\Action
 {
+    protected $resultPageFactory;
+    protected $storeManager;
+    protected $formKey;
+
     /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param PageFactory $resultPageFactory
-     * @param DropboxConfig $dropboxConfig
      * @param StoreManagerInterface $storeManager
      * @param TransportBuilder $transportBuilder
+     * @param DropboxConfig $dropboxConfig
      * @param Customer $customer
+     * @param FormKey $formKey
      */
     public function __construct(
         Context $context,
@@ -33,11 +39,13 @@ class Domains extends \Magento\Framework\App\Action\Action
         StoreManagerInterface $storeManager,
         TransportBuilder $transportBuilder,
         DropboxConfig $dropboxConfig,
-        Customer $customer
+        Customer $customer,
+        FormKey $formKey
     )
     {
         $this->resultPageFactory = $resultPageFactory;
         $this->storeManager = $storeManager;
+        $this->formKey = $formKey;
 
         parent::__construct($context);
     }
@@ -50,6 +58,7 @@ class Domains extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $domains = [];
+        $formKey = $this->formKey->getFormKey();
 
         try {
             $mailgunClient = new Mailgun(
@@ -76,12 +85,24 @@ class Domains extends \Magento\Framework\App\Action\Action
                 }
             }
 
-            echo json_encode($domains, true);
+            $result = [
+                'domains' => $domains,
+                'form_key' => $formKey
+            ];
+
+            echo json_encode($result, true);
 
         } catch (\Exception $e) {
 
-            echo json_encode([], true);
+            $result = [
+                'domains' => [],
+                'form_key' => $formKey
+            ];
+
+            echo json_encode($result, true);
         }
+
+
     }
 }
 

@@ -11,24 +11,24 @@ require([
     var mailgunKey = $( "#system_smtp_mailgun_key" );
     var mailgunDomains = $("#system_smtp_mailgun_domain");
 
-    var newOptions = {
-        "Option 1": "value1",
-        "Option 2": "value2",
-        "Option 3": "value3"
-    };
+    var newOptions = {};
 
     mailgunKey.change(function() {
 
         var mailgunKeyValue = mailgunKey.val();
 
-        new Ajax.Request('/management/mailgun/ajax/domains', {
+        new Ajax.Request('/mailgun/ajax/domains', {
             evalScripts: true,
             parameters: {'form_key': FORM_KEY, 'mailgun_key': mailgunKeyValue},
             onSuccess: function(transport) {
 
-                var json = transport.responseText.evalJSON();
+                var result = transport.responseText.evalJSON();
                 mailgunDomains.empty(); // remove old options
-                $.each(json, function(key,value) {
+
+                var jsonDomains = result.domains;
+                FORM_KEY = result.form_key;
+
+                $.each(jsonDomains, function(key,value) {
                     mailgunDomains.append($("<option></option>")
                         .attr("value", value.label).text(value.value));
                 });
