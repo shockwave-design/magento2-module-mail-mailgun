@@ -4,12 +4,11 @@
  */
 require([
     'underscore',
-    'jquery',
-    'prototype'
-], function (_, $) {
+    'jquery'
+], function (_, jquery) {
 
-    var mailgunKey = $( "#system_smtp_mailgun_key" );
-    var mailgunDomains = $("#system_smtp_mailgun_domain");
+    var mailgunKey = jquery('#system_smtp_mailgun_key');
+    var mailgunDomains = jquery('#system_smtp_mailgun_domain');
 
     var newOptions = {};
 
@@ -28,62 +27,18 @@ require([
                 var jsonDomains = result.domains;
                 FORM_KEY = result.form_key;
 
-                $.each(jsonDomains, function(key,value) {
-                    mailgunDomains.append($("<option></option>")
+                jquery.each(jsonDomains, function(key,value) {
+                    mailgunDomains.append(jquery("<option></option>")
                         .attr("value", value.label).text(value.value));
                 });
 
 
-            }.bind(this)
-            //onFailure: this._processFailure.bind(this)
+            }.bind(this),
+            onFailure: function(transport) {
+                mailgunDomains.empty();
+            }
         });
 
     });
-
-    return {
-
-        $mailgunKey: $('#system_smtp_mailgun_key'),
-
-        /**
-         * Switch Weight
-         * @returns {*}
-         */
-        switchWeight: function () {
-            return this.productHasWeight() ? this.enabled() : this.disabled();
-        },
-
-        /**
-         * Notify product weight is changed
-         * @returns {*|jQuery}
-         */
-        notifyProductWeightIsChanged: function () {
-            return $('input:checked', this.$weightSwitcher).trigger('change');
-        },
-
-        /**
-         * Change
-         * @param {String} data
-         */
-        change: function (data) {
-            var value = data !== undefined ? +data : !this.productHasWeight();
-
-            $('input[value=' + value + ']', this.$weightSwitcher).prop('checked', true);
-        },
-
-        /**
-         * Constructor component
-         */
-        'Shockwavedesign_Mail_Mailgun/js/mailgun': function () {
-            this.bindAll();
-            this.switchWeight();
-        },
-
-        /**
-         * Bind all
-         */
-        bindAll: function () {
-            this.$mailgunKey.find('input').on('change', this.switchWeight.bind(this));
-        }
-    };
 
 });
