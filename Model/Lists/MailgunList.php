@@ -3,7 +3,7 @@
  * Copyright 2016 Shockwave-Design - J. & M. Kramer, all rights reserved.
  * See LICENSE.txt for license details.
  */
-namespace Shockwavedesign\Mail\Mailgun\Model\Transports;
+namespace Shockwavedesign\Mail\Mailgun\Model\Lists;
 
 use DateTime;
 use Mailgun\Mailgun;

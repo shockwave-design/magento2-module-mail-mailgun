@@ -13,10 +13,7 @@ use Magento\Framework\View\Result\PageFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
 
-use \Dropbox as dbx;
-
 use Mailgun\Mailgun;
-use Shockwavedesign\Mail\Dropbox\Model\Config as DropboxConfig;
 
 class Domains extends \Magento\Framework\App\Action\Action
 {
@@ -29,7 +26,6 @@ class Domains extends \Magento\Framework\App\Action\Action
      * @param PageFactory $resultPageFactory
      * @param StoreManagerInterface $storeManager
      * @param TransportBuilder $transportBuilder
-     * @param DropboxConfig $dropboxConfig
      * @param Customer $customer
      * @param FormKey $formKey
      */
@@ -38,7 +34,6 @@ class Domains extends \Magento\Framework\App\Action\Action
         PageFactory $resultPageFactory,
         StoreManagerInterface $storeManager,
         TransportBuilder $transportBuilder,
-        DropboxConfig $dropboxConfig,
         Customer $customer,
         FormKey $formKey
     )
