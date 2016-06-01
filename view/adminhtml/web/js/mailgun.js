@@ -3,42 +3,40 @@
  * See COPYING.txt for license details.
  */
 require([
-    'underscore',
     'jquery'
-], function (_, jquery) {
+], function ($) {
 
-    var mailgunKey = jquery('#system_smtp_mailgun_key');
-    var mailgunDomains = jquery('#system_smtp_mailgun_domain');
+    $(document).ready(function () {
+        var mailgunKey = $('#system_smtp_mailgun_key');
+        var mailgunDomains = $('#system_smtp_mailgun_domain');
 
-    var newOptions = {};
+        var newOptions = {};
 
-    mailgunKey.change(function() {
+        mailgunKey.on('blur', function () {
+            var mailgunKeyValue = mailgunKey.val();
 
-        var mailgunKeyValue = mailgunKey.val();
+            new Ajax.Request('/mailgun/ajax/domains', {
+                evalScripts: true,
+                parameters: {'form_key': FORM_KEY, 'mailgun_key': mailgunKeyValue},
+                onSuccess: function (transport) {
 
-        new Ajax.Request('/mailgun/ajax/domains', {
-            evalScripts: true,
-            parameters: {'form_key': FORM_KEY, 'mailgun_key': mailgunKeyValue},
-            onSuccess: function(transport) {
+                    var result = transport.responseText.evalJSON();
+                    mailgunDomains.empty(); // remove old options
 
-                var result = transport.responseText.evalJSON();
-                mailgunDomains.empty(); // remove old options
+                    var jsonDomains = result.domains;
+                    FORM_KEY = result.form_key;
 
-                var jsonDomains = result.domains;
-                FORM_KEY = result.form_key;
-
-                jquery.each(jsonDomains, function(key,value) {
-                    mailgunDomains.append(jquery("<option></option>")
-                        .attr("value", value.label).text(value.value));
-                });
+                    $.each(jsonDomains, function (key, value) {
+                        mailgunDomains.append($("<option></option>")
+                            .attr("value", value.label).text(value.value));
+                    });
 
 
-            }.bind(this),
-            onFailure: function(transport) {
-                mailgunDomains.empty();
-            }
+                }.bind(this),
+                onFailure: function (transport) {
+                    mailgunDomains.empty();
+                }
+            });
         });
-
     });
-
 });
