@@ -30,6 +30,8 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
     /** @var \Shockwavemk\Mail\Base\Model\Config */
     protected $_baseConfig;
+    
+    protected $_dateTime;
 
     /**
      * @param \Shockwavedesign\Mail\Mailgun\Model\Config $config
@@ -117,8 +119,7 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
             );
 
             $parameters = $this->assignOptionalParameters($parameters);
-
-
+            
             /** @var array $postFiles */
             $postFiles = $this->getPostFiles();
 
@@ -286,18 +287,8 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     {
         $attachmentPathes = [];
 
-        if (empty($mailId = $this->getMail()->getId())) {
-            $mailId = $this->getMail()->getParentId();
-        }
-
         foreach ($this->getMail()->getAttachments() as $attachment) {
-            $attachmentPathes[] = $this
-                    ->getMail()
-                    ->getStoreage()
-                    ->getTempFilePath() .
-                $mailId . DIRECTORY_SEPARATOR .
-                self::ATTACHMENT_FOLDER .
-                $attachment->getFilePath();
+            $attachmentPathes[] = $attachment->getFilePath();
         }
 
         return array(
