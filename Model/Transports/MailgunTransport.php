@@ -123,15 +123,15 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
             /** @var array $postFiles */
             $postFiles = $this->getPostFiles();
 
-            $this->getMail()->setResult(
+            $domain = $this->_config->getMailgunDomain();
 
-                $mailgunClient->sendMessage(
-                    $this->_config->getMailgunDomain(),
-                    $parameters,
-                    $postFiles
-                )
-
+            $result = $mailgunClient->sendMessage(
+                $domain,
+                $parameters,
+                $postFiles
             );
+
+            $this->getMail()->setResult($result);
 
             $this->getMail()
                 ->setSent($this->createSent())
@@ -240,6 +240,7 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
         /* h: prefix followed by an arbitrary value allows to append a custom
           MIME header to the message (X-My-Header in this case).
           For example, h:Reply-To to specify Reply-To address.*/
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getCustomHeaders())) {
             foreach ($this->getMail()->getCustomHeaders() as $key => $value) {
                 $parameters['h:' . $key] = $value;
@@ -248,6 +249,7 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
 
         /* v: prefix followed by an arbitrary name allows to attach a custom JSON data to the message.
            See Attaching Data to Messages for more information. */
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getCustomVariables())) {
             foreach ($this->getMail()->getCustomVariables() as $key => $value) {
                 $parameters['v:' . $key] = $value;
