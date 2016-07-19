@@ -95,9 +95,12 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     public function sendMessage()
     {
         try {
+	    $client = new \Http\Adapter\Guzzle6\Client();
+
             /** @var $mailgunClient Mailgun */
             $mailgunClient = new Mailgun(
-                $this->_config->getMailgunKey()
+                $this->_config->getMailgunKey(),
+		$client
             );
 
             /** @var string $recipients comma separated */
