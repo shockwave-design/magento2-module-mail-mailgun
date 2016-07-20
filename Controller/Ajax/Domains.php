@@ -14,12 +14,18 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
 
 use Mailgun\Mailgun;
+use Shockwavedesign\Mail\Mailgun\Model\Config\Source\Mailgun\Domains as MailgunDomains;
 
 class Domains extends \Magento\Framework\App\Action\Action
 {
     protected $resultPageFactory;
     protected $storeManager;
     protected $formKey;
+    protected $mailgunDomains;
+    /**
+     * @var MailgunDomains
+     */
+    private $domains;
 
     /**
      * @param \Magento\Framework\App\Action\Context $context
@@ -28,6 +34,7 @@ class Domains extends \Magento\Framework\App\Action\Action
      * @param TransportBuilder $transportBuilder
      * @param Customer $customer
      * @param FormKey $formKey
+     * @param MailgunDomains $domains
      */
     public function __construct(
         Context $context,
@@ -35,7 +42,8 @@ class Domains extends \Magento\Framework\App\Action\Action
         StoreManagerInterface $storeManager,
         TransportBuilder $transportBuilder,
         Customer $customer,
-        FormKey $formKey
+        FormKey $formKey,
+        MailgunDomains $mailgunDomains
     )
     {
         $this->resultPageFactory = $resultPageFactory;
@@ -43,6 +51,7 @@ class Domains extends \Magento\Framework\App\Action\Action
         $this->formKey = $formKey;
 
         parent::__construct($context);
+        $this->mailgunDomains = $mailgunDomains;
     }
 
     /**
@@ -56,15 +65,9 @@ class Domains extends \Magento\Framework\App\Action\Action
         $formKey = $this->formKey->getFormKey();
 
         try {
-            $mailgunClient = new Mailgun(
-                $this->getRequest()->getParam('mailgun_key')
-            );
 
-            $mailgunDomains = $mailgunClient->get(
-                "domains", array(
-                    'limit' => 100,
-                    'skip' => 0
-                )
+            $mailgunDomains = $this->mailgunDomains->getDomainsFromMailgun(
+                $this->getRequest()->getParam('mailgun_key')
             );
 
             if(!empty($mailgunDomains) && $mailgunDomains->http_response_code == 200)
@@ -73,7 +76,8 @@ class Domains extends \Magento\Framework\App\Action\Action
                 foreach ($items as $item)
                 {
                     $domainName = $item->name;
-                    if(!empty($item->state) && $item->state == 'active')
+                    /** @noinspection IsEmptyFunctionUsageInspection */
+                    if(!empty($item->state) && $item->state === 'active')
                     {
                         $domains[] = ['label' => __($domainName), 'value' => $domainName];
                     }

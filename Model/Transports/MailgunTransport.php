@@ -5,6 +5,7 @@
  */
 namespace Shockwavedesign\Mail\Mailgun\Model\Transports;
 
+use Http\Adapter\Guzzle6\Client;
 use Mailgun\Mailgun;
 use stdClass;
 
@@ -94,13 +95,15 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
      */
     public function sendMessage()
     {
-        try {
-	    $client = new \Http\Adapter\Guzzle6\Client();
+        try
+        {
+            /** @var Client $client */
+            $client = new Client();
 
             /** @var $mailgunClient Mailgun */
             $mailgunClient = new Mailgun(
                 $this->_config->getMailgunKey(),
-		$client
+		        $client
             );
 
             /** @var string $recipients comma separated */
@@ -151,44 +154,53 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     }
 
     /**
+     * For mailgun api several additional options for mail sending are available
+     *
      * @param $parameters
      * @return mixed
      */
     protected function assignOptionalParameters($parameters)
     {
         // Same as To but for Cc
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getCc())) {
             $parameters['cc'] = $this->getMail()->getCc();
         }
 
         //	Same as To but for Bcc
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getBcc())) {
             $parameters['bcc'] = $this->getMail()->getBcc();
         }
 
         /* File attachment. You can post multiple attachment values.
            Important: You must use multipart/form-data encoding when sending attachments.*/
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getMultipartAttachment())) {
             $parameters['attachment'] = $this->getMail()->getMultipartAttachment();
         }
 
         /* Attachment with inline disposition. Can be used to send inline images (see example).
         You can post multiple inline values.*/
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getMultipartInline())) {
             $parameters['inline'] = $this->getMail()->getMultipartInline();
         }
 
         // Tag string. See Tagging for more information.
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getTags())) {
             $parameters['o:tag'] = $this->getMail()->getTags();
         }
 
         // Id of the campaign the message belongs to. See um-campaign-analytics for details.
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getCampaign())) {
             $parameters['o:campaign'] = $this->getMail()->getCampaign();
         }
 
         // 	Enables/disables DKIM signatures on per-message basis. Pass yes or no
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getDkimEnabled())) {
             $parameters['o:dkim'] = $this->getMail()->getDkimEnabled();
         }
@@ -200,24 +212,28 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
         }
 
         // 	Enables sending in test mode. Pass yes if needed. See Sending in Test Mode
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getTestMode())) {
             $parameters['o:testmode'] = $this->getMail()->getTestMode();
         }
 
         /* Toggles tracking on a per-message basis, see Tracking Messages for details.
            Pass yes or no.*/
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getTrackingEnabled())) {
             $parameters['o:tracking'] = $this->getMail()->getTrackingEnabled();
         }
 
         /* Toggles clicks tracking on a per-message basis.
            Has higher priority than domain-level setting. Pass yes, no or htmlonly.*/
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getTrackingClicksEnabled())) {
             $parameters['o:tracking-clicks'] = $this->getMail()->getTrackingClicksEnabled();
         }
 
         /* Toggles opens tracking on a per-message basis.
            Has higher priority than domain-level setting. Pass yes or no.*/
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getTrackingOpensEnabled())) {
             $parameters['o:tracking-opens'] = $this->getMail()->getTrackingOpensEnabled();
         }
@@ -227,6 +243,7 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
           If set to False, Mailgun will still try and upgrade the connection,
           but if Mailgun can not, the message will be delivered over a plaintext SMTP connection.
           The default is False.*/
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getRequireTlsEnabled())) {
             $parameters['o:require-tls'] = $this->getMail()->getRequireTlsEnabled();
         }
@@ -236,6 +253,7 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
            If set to False, Mailgun will verify the certificate and hostname.
           If either one can not be verified, a TLS connection will not be established.
           The default is False.*/
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (!empty($this->getMail()->getSkipVerificationEnabled())) {
             $parameters['o:skip-verification'] = $this->getMail()->getSkipVerificationEnabled();
         }
@@ -296,11 +314,11 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
             $attachmentPathes[] = $attachment->getFilePath();
         }
 
-        return array(
+        return [
             'attachment' => $attachmentPathes,
             'inline' => $this->getMail()->getAdditionalInlines(),
             'message' => $this->getMail()->getAdditionalMessages()
-        );
+        ];
     }
 
     /**
@@ -311,6 +329,7 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
         /** @var stdClass $result */
         $result = $this->getMail()->getResult();
 
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (empty($result)) {
             return null;
         }
@@ -341,7 +360,8 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
     {
         /** @var stdClass $result */
         $result = $this->getMail()->getResult();
-
+        
+        /** @noinspection IsEmptyFunctionUsageInspection */
         if (empty($result)) {
             return null;
         }
@@ -354,20 +374,5 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
         }
 
         return null;
-    }
-
-    /**
-     * @return \stdClass
-     */
-    public function createTestResult()
-    {
-        $test = new \stdClass();
-        $test->http_response_code = 200;
-
-        $testBody = new \stdClass();
-        $testBody->id = '<xyz>';
-
-        $test->http_response_body = $testBody;
-        return $test;
     }
 }
