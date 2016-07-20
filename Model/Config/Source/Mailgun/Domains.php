@@ -5,39 +5,41 @@
  */
 namespace Shockwavedesign\Mail\Mailgun\Model\Config\Source\Mailgun;
 
+use Http\Adapter\Guzzle6\Client;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Option\ArrayInterface;
 use \Mailgun\Mailgun;
+use Shockwavedesign\Mail\Mailgun\Model\Config;
 
-class Domains implements \Magento\Framework\Option\ArrayInterface
+class Domains implements ArrayInterface
 {
     protected $scopeConfig;
     protected $messageManager;
 
     public function __construct(
-        \Shockwavedesign\Mail\Mailgun\Model\Config $scopeConfig,
-        \Magento\Framework\Message\ManagerInterface $messageManager
+        Config $scopeConfig,
+        ManagerInterface $messageManager
     )
     {
-        /** @var scopeConfig */
+        /** @var Config scopeConfig */
         $this->scopeConfig = $scopeConfig;
         $this->messageManager = $messageManager;
     }
 
-    protected function getDomainsFromMailgun()
+    public function getDomainsFromMailgun($mailgunKey)
     {
-        if(empty($this->scopeConfig->getMailgunKey()))
-        {
-            return null;
-        }
+        $client = new Client();
 
         $mailgunClient = new Mailgun(
-            $this->scopeConfig->getMailgunKey()
+            $mailgunKey,
+            $client
         );
 
         return $mailgunClient->get(
-            "domains", array(
+            'domains', [
                 'limit' => 100,
                 'skip' => 0
-            )
+            ]
         );
     }
 
@@ -50,15 +52,16 @@ class Domains implements \Magento\Framework\Option\ArrayInterface
 
         try
         {
-            $mailgunDomains = $this->getDomainsFromMailgun();
-            if(!empty($mailgunDomains) && $mailgunDomains->http_response_code == 200)
+            $mailgunDomains = $this->getDomainsFromMailgun($this->scopeConfig->getMailgunKey());
+            /** @noinspection IsEmptyFunctionUsageInspection */
+            if(!empty($mailgunDomains) && $mailgunDomains->http_response_code === 200)
             {
                 $items = $mailgunDomains->http_response_body->items;
                 foreach ($items as $item)
                 {
                     $domainName = $item->name;
                     $state = $item->state;
-                    if($state == 'active')
+                    if($state === 'active')
                     {
                         $domains[] = ['label' => __($domainName), 'value' => $domainName];
                     }
