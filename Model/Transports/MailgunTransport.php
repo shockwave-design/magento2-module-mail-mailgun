@@ -116,7 +116,7 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
                 'to' => $recipients,
                 /* to email address of the recipient(s).
                    Example: "Bob <bob@host.com>". You can use commas to separate multiple recipients.*/
-                'subject' => quoted_printable_decode($this->_message->getSubject()),
+                'subject' => $this->decodeZendQuotedPrintableHeader($this->_message->getSubject()),
                 // Message subject
                 'text' => quoted_printable_decode($this->_message->getBodyText(true)),
                 // Body of the message. (text version)
@@ -151,6 +151,35 @@ class MailgunTransport implements \Shockwavemk\Mail\Base\Model\Transports\Transp
                 $e
             );
         }
+    }
+
+    /**
+     * For mailgun api several additional options for mail sending are available
+     *
+     * decodes the Zend Zend_Mime::encodeQuotedPrintableHeader
+     *
+     * @see https://framework.zend.com/apidoc/1.9/Zend_Mime/Zend_Mime.html#methodencodeQuotedPrintable
+     *
+     * @param $str
+     * @param string $charset
+     * @return string
+     */
+    protected function decodeZendQuotedPrintableHeader($str, $charset = 'utf-8'){
+
+        $lines = explode(\Zend_Mime::LINEEND, $str);
+        $result = '';
+        foreach($lines as $line){
+            // matches lines that begins with "=?utf-8?Q?" and ends with "=?"
+            if(preg_match('/^[ ]{0,1}=\?'.preg_quote($charset).'\?Q\?(.*)\?=/', $line, $matches))
+            {
+                $result .= \Zend_Mime_Decode::decodeQuotedPrintable($matches[1]);
+            }
+            else
+            {
+                $result .= \Zend_Mime_Decode::decodeQuotedPrintable($line);
+            }
+        }
+        return $result;
     }
 
     /**
