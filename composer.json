@@ -1,9 +1,10 @@
 {
-  "name": "shockwavedesign/magento2-module-mail-mailgun",
+  "name": "ably-se/magento2-module-mail-mailgun",
   "description": "Extend shockwave mail",
+  "version": "dev-master",
   "require": {
     "shockwavemk/magento2-module-mail": "*",
-    "mailgun/mailgun-php": "*",
+    "mailgun/mailgun-php": "~2.3.0",
     "php-http/guzzle6-adapter": "^1.0"
   },
   "type": "magento2-module",
